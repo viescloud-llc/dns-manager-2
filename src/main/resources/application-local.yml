@@ -53,8 +53,8 @@ MYSQL_PASSWORD: 'dns_manager'
 MYSQL_USE_SSL: 'false'
 
 # -----------------------------------Redis specific configuration-----------------------------------
-REDIS.ENABLED: false
-REDIS.HOST: "localhost"
-REDIS.PORT: 6379
-REDIS.USERNAME: 
-REDIS.PASSWORD: 
+REDIS_ENABLED: true
+REDIS_HOST: "10.24.24.2"
+REDIS_PORT: 6379
+REDIS_USERNAME: 
+REDIS_PASSWORD: 
