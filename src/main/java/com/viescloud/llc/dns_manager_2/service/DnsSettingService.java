@@ -23,5 +23,15 @@ public class DnsSettingService extends ViesService<Long, DnsSetting, DnsSettingD
     public void setIdFieldValue(DnsSetting object, Long id) {
         object.setId(id);
     }
+
+    @Override
+    protected boolean disableCheckNotNullField() {
+        return true;
+    }
+
+    @Override
+    protected boolean disableCheckValidUniqueField() {
+        return true;
+    }
     
 }

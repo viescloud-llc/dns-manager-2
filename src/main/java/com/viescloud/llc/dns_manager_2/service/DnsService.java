@@ -36,7 +36,7 @@ public class DnsService {
     }
 
     public Map<String, DnsRecord> getDnsRecordMap() {
-        this.syncDnsRecord();
+        // this.syncDnsRecord();
         var recordMap = new HashMap<String, DnsRecord>();
         var dnsMap = new HashMap<String, String>();
 

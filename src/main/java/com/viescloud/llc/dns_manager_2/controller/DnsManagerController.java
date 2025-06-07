@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.viescloud.eco.viesspringutils.exception.HttpResponseThrowers;
-import com.viescloud.eco.viesspringutils.interfaces.annotation.Permission;
 import com.viescloud.llc.dns_manager_2.model.DnsRecord;
 import com.viescloud.llc.dns_manager_2.service.DnsService;
 import com.viescloud.llc.dns_manager_2.service.DnsServiceFactory;

@@ -12,6 +12,8 @@ import com.viescloud.eco.viesspringutils.ViesApplication;
 @SpringBootApplication
 @EnableAspectJAutoProxy(proxyTargetClass=true)
 @EnableFeignClients
+@EnableJpaRepositories
+@EntityScan
 public class DnsManager2Application extends ViesApplication {
 
 	public static void main(String[] args) {

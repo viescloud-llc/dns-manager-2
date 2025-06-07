@@ -1,5 +1,5 @@
-# spring.data.redis.repositories.enabled: true
-# eureka.client.enabled: false
+spring.data.redis.repositories.enabled: false
+eureka.client.enabled: false
 spring.application.name: dns-manager-2
 cloudflare.uri: https://api.cloudflare.com
 

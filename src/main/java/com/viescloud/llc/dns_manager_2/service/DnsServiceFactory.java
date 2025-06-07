@@ -6,6 +6,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.viescloud.eco.viesspringutils.factory.RedisTemplateFactory;
 import com.viescloud.eco.viesspringutils.util.DynamicMapCache;
 import com.viescloud.eco.viesspringutils.util.Json;
 import com.viescloud.llc.dns_manager_2.client.NginxClient;
@@ -22,8 +23,9 @@ public class DnsServiceFactory {
     
     private final RestTemplate restTemplate;
     private final CloudflareClient cloudflareClient;
-    private final RedisTemplate<String, CloudflareResult> cloudFlareRedisTemplate;
-    private final RedisTemplate<String, NginxProxyHostResponse> nginxProxyRedisTemplate;
+    private final RedisTemplateFactory redisTemplateFactory;
+    // private final RedisTemplate<String, CloudflareResult> cloudFlareRedisTemplate;
+    // private final RedisTemplate<String, NginxProxyHostResponse> nginxProxyRedisTemplate;
     private final HashMap<String, DnsService> dnsServiceMap = new HashMap<>();
 
     public DnsService getDnsService(DnsSetting dnsSetting) {
@@ -33,6 +35,9 @@ public class DnsServiceFactory {
             return this.dnsServiceMap.get(id);
         }
         else {
+            RedisTemplate<String, CloudflareResult> cloudFlareRedisTemplate = redisTemplateFactory.getDefault();
+            RedisTemplate<String, NginxProxyHostResponse> nginxProxyRedisTemplate = redisTemplateFactory.getDefault(); 
+            
             NginxClient nginxClient = new NginxClient(restTemplate) {
                 @Override
                 protected String getBaseUrl() {
