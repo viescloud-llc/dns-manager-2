@@ -24,8 +24,6 @@ public class DnsServiceFactory {
     private final RestTemplate restTemplate;
     private final CloudflareClient cloudflareClient;
     private final RedisTemplateFactory redisTemplateFactory;
-    // private final RedisTemplate<String, CloudflareResult> cloudFlareRedisTemplate;
-    // private final RedisTemplate<String, NginxProxyHostResponse> nginxProxyRedisTemplate;
     private final HashMap<String, DnsService> dnsServiceMap = new HashMap<>();
 
     public DnsService getDnsService(DnsSetting dnsSetting) {
