@@ -10,6 +10,7 @@ import java.util.function.BiFunction;
 import org.springframework.util.ObjectUtils;
 
 import com.viescloud.eco.viesspringutils.util.DateTime;
+import com.viescloud.eco.viesspringutils.util.Streams;
 import com.viescloud.llc.dns_manager_2.model.DnsRecord;
 import com.viescloud.llc.dns_manager_2.model.DnsSetting;
 import com.viescloud.llc.dns_manager_2.model.cloudflare.CloudflareRequest;
@@ -36,7 +37,7 @@ public class DnsService {
     }
 
     public Map<String, DnsRecord> getDnsRecordMap() {
-        // this.syncDnsRecord();
+        this.syncDnsRecord();
         var recordMap = new HashMap<String, DnsRecord>();
         var dnsMap = new HashMap<String, String>();
 
@@ -205,7 +206,7 @@ public class DnsService {
         var domainNames = new ArrayList<>(nginxService.getAllDomainNameList());
 
         for (String domainName : domainNames) {
-            var cloudflareDns = cloudflareDnsResult.parallelStream().filter(e -> e.getName().equalsIgnoreCase(domainName)).findFirst().orElse(null);
+            var cloudflareDns = Streams.stream(cloudflareDnsResult).filter(e -> e.getName().equalsIgnoreCase(domainName)).findFirst().orElse(null);
             if (cloudflareDns == null) {
                 this.putCloudflareDns(domainName);
             }
