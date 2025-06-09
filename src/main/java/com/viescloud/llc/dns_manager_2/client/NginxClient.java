@@ -28,7 +28,7 @@ public abstract class NginxClient {
     protected String getUrl(String... paths) {
         var baseUrl = this.getBaseUrl();
 
-        if (!baseUrl.startsWith("http://") || !baseUrl.startsWith("https://")) {
+        if (!(baseUrl.startsWith("http://") || baseUrl.startsWith("https://"))) {
             baseUrl = "https://" + baseUrl;
         }
 

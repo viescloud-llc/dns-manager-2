@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.viescloud.eco.viesspringutils.exception.HttpResponseThrowers;
+import com.viescloud.eco.viesspringutils.interfaces.annotation.Permission;
 import com.viescloud.llc.dns_manager_2.model.DnsRecord;
 import com.viescloud.llc.dns_manager_2.service.DnsService;
 import com.viescloud.llc.dns_manager_2.service.DnsServiceFactory;
@@ -45,7 +46,7 @@ public class DnsManagerController {
     }
 
     @PutMapping("{dnsSettingId}")
-    // @Permission("ADMIN")
+    @Permission("ADMIN")
     public ResponseEntity<?> putDnsRecord(@PathVariable Long dnsSettingId, @RequestBody DnsRecord record, @RequestParam(required = false, defaultValue = "false") boolean cleanUnusedCloudflareCnameDns) {
         getDnsService(dnsSettingId).putDnsRecord(record);
         if (cleanUnusedCloudflareCnameDns) {
@@ -55,21 +56,21 @@ public class DnsManagerController {
     }
 
     @DeleteMapping("/clear-unused-dns/{dnsSettingId}")
-    // @Permission("ADMIN")
+    @Permission("ADMIN")
     public ResponseEntity<?> clearUnusedDnsRecordsCache(@PathVariable Long dnsSettingId) {
         getDnsService(dnsSettingId).cleanUnusedCloudflareCnameDns();
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/clear-cache/{dnsSettingId}")
-    // @Permission("ADMIN")
+    @Permission("ADMIN")
     public ResponseEntity<?> clearDnsRecordsCache(@PathVariable Long dnsSettingId) {
         getDnsService(dnsSettingId).clearDnsRecordsCache();
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("{dnsSettingId}")
-    // @Permission("ADMIN")
+    @Permission("ADMIN")
     public ResponseEntity<?> deleteDnsRecord(@PathVariable Long dnsSettingId, @RequestParam String uri, @RequestParam(required = false, defaultValue = "false") boolean cleanUnusedCloudflareCnameDns) {
         getDnsService(dnsSettingId).deleteDnsRecord(uri);
         if (cleanUnusedCloudflareCnameDns) {
