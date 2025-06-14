@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.viescloud.eco.viesspringutils.factory.RedisTemplateFactory;
-import com.viescloud.eco.viesspringutils.util.DynamicMapCache;
+import com.viescloud.eco.viesspringutils.util.DynamicRedisExpirableMapCache;
 import com.viescloud.eco.viesspringutils.util.Json;
 import com.viescloud.llc.dns_manager_2.client.NginxClient;
 import com.viescloud.llc.dns_manager_2.feign.CloudflareClient;
@@ -43,7 +43,7 @@ public class DnsServiceFactory {
                 }
             };
 
-            NginxService nginxService = new NginxService(nginxClient, new DynamicMapCache<String, NginxProxyHostResponse>(nginxProxyRedisTemplate)) {
+            NginxService nginxService = new NginxService(nginxClient, new DynamicRedisExpirableMapCache<String, NginxProxyHostResponse>(nginxProxyRedisTemplate)) {
                 @Override
                 protected String nginxEmail() {
                     return dnsSetting.getNginxEmail();
@@ -55,7 +55,7 @@ public class DnsServiceFactory {
                 }
             };
 
-            CloudflareService cloudflareService = new CloudflareService(this.cloudflareClient, new DynamicMapCache<String, CloudflareResult>(cloudFlareRedisTemplate)) {
+            CloudflareService cloudflareService = new CloudflareService(this.cloudflareClient, new DynamicRedisExpirableMapCache<String, CloudflareResult>(cloudFlareRedisTemplate)) {
                 @Override
                 protected String cloudflareEmail() {
                     return dnsSetting.getCloudflareEmail();

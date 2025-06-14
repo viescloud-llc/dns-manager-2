@@ -24,14 +24,14 @@ public class DnsSettingService extends ViesService<Long, DnsSetting, DnsSettingD
         object.setId(id);
     }
 
-    @Override
-    protected boolean disableCheckNotNullField() {
-        return true;
-    }
+    // @Override
+    // protected boolean disableCheckNotNullField() {
+    //     return true;
+    // }
 
-    @Override
-    protected boolean disableCheckValidUniqueField() {
-        return true;
-    }
+    // @Override
+    // protected boolean disableCheckValidUniqueField() {
+    //     return true;
+    // }
     
 }

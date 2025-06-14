@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.viescloud.eco.viesspringutils.exception.HttpResponseThrowers;
-import com.viescloud.eco.viesspringutils.util.DynamicMapCache;
+import com.viescloud.eco.viesspringutils.util.DynamicRedisExpirableMapCache;
 import com.viescloud.eco.viesspringutils.util.Json;
 import com.viescloud.eco.viesspringutils.util.Streams;
 import com.viescloud.llc.dns_manager_2.feign.CloudflareClient;
@@ -25,7 +25,7 @@ public abstract class CloudflareService {
     protected abstract String content();
 
     protected final CloudflareClient cloudflareClient;
-    protected final DynamicMapCache<String, CloudflareResult> dnsCacheMap;
+    protected final DynamicRedisExpirableMapCache<String, CloudflareResult> dnsCacheMap;
 
     public void clearCache() {
         dnsCacheMap.clear();

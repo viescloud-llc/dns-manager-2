@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.viescloud.eco.viesspringutils.exception.HttpResponseThrowers;
-import com.viescloud.eco.viesspringutils.util.DynamicMapCache;
+import com.viescloud.eco.viesspringutils.util.DynamicRedisExpirableMapCache;
 import com.viescloud.eco.viesspringutils.util.ExpirableValue;
 import com.viescloud.eco.viesspringutils.util.Json;
 import com.viescloud.eco.viesspringutils.util.Streams;
@@ -25,7 +25,7 @@ public abstract class NginxService {
     protected abstract String nginxPassword();
 
     protected final NginxClient nginxClient;
-    protected final DynamicMapCache<String, NginxProxyHostResponse> proxyHostCacheMap;
+    protected final DynamicRedisExpirableMapCache<String, NginxProxyHostResponse> proxyHostCacheMap;
     protected ExpirableValue<String> jwtCache = new ExpirableValue<String>().expireTimerIn(Duration.ofDays(1));
 
     public void clearCache() {
