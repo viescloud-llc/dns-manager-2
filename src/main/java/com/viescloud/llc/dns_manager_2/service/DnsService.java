@@ -47,7 +47,7 @@ public class DnsService {
         return recordMap;
     }
 
-    public List<NginxCertificateResponse> getAllNginxCertificate(String type) {
+    public List<NginxCertificateResponse> getAllNginxCertificate() {
         return this.nginxService.getAllCertificate();
     }
 
