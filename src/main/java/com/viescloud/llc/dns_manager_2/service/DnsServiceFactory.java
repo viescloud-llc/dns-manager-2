@@ -1,5 +1,6 @@
 package com.viescloud.llc.dns_manager_2.service;
 
+import java.time.Duration;
 import java.util.HashMap;
 
 import org.springframework.data.redis.core.RedisTemplate;
@@ -25,6 +26,7 @@ public class DnsServiceFactory {
     private final CloudflareClient cloudflareClient;
     private final RedisTemplateFactory redisTemplateFactory;
     private final HashMap<String, DnsService> dnsServiceMap = new HashMap<>();
+    private static final Duration TTL = Duration.ofMinutes(10);
 
     public DnsService getDnsService(DnsSetting dnsSetting) {
         var id = getId(dnsSetting);
@@ -43,7 +45,7 @@ public class DnsServiceFactory {
                 }
             };
 
-            NginxService nginxService = new NginxService(nginxClient, new DynamicRedisExpirableMapCache<String, NginxProxyHostResponse>(nginxProxyRedisTemplate)) {
+            NginxService nginxService = new NginxService(nginxClient, new DynamicRedisExpirableMapCache<String, NginxProxyHostResponse>(nginxProxyRedisTemplate).ttl(TTL)) {
                 @Override
                 protected String nginxEmail() {
                     return dnsSetting.getNginxEmail();
@@ -55,7 +57,7 @@ public class DnsServiceFactory {
                 }
             };
 
-            CloudflareService cloudflareService = new CloudflareService(this.cloudflareClient, new DynamicRedisExpirableMapCache<String, CloudflareResult>(cloudFlareRedisTemplate)) {
+            CloudflareService cloudflareService = new CloudflareService(this.cloudflareClient, new DynamicRedisExpirableMapCache<String, CloudflareResult>(cloudFlareRedisTemplate).ttl(TTL)) {
                 @Override
                 protected String cloudflareEmail() {
                     return dnsSetting.getCloudflareEmail();

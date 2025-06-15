@@ -19,7 +19,7 @@ import com.viescloud.llc.dns_manager_2.service.DnsServiceFactory;
 import com.viescloud.llc.dns_manager_2.service.DnsSettingService;
 
 @RestController
-@RequestMapping("/api/v1/dns/manager")
+@RequestMapping("/api/v1/dns/managers")
 public class DnsManagerController {
     
     @Autowired

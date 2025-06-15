@@ -10,6 +10,7 @@ import java.util.function.BiFunction;
 import org.springframework.util.ObjectUtils;
 
 import com.viescloud.eco.viesspringutils.util.DateTime;
+import com.viescloud.eco.viesspringutils.util.Json;
 import com.viescloud.eco.viesspringutils.util.Streams;
 import com.viescloud.llc.dns_manager_2.model.DnsRecord;
 import com.viescloud.llc.dns_manager_2.model.DnsSetting;
@@ -22,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class DnsService {
-    
+
     private final DnsSetting dnsSetting;
     private final NginxService nginxService;
     private final CloudflareService cloudflareService;
@@ -52,7 +53,10 @@ public class DnsService {
 
     private void fetchAllCloudflareDnsRecords(Map<String, DnsRecord> recordMap, Map<String, String> dnsMap) {
         this.fetchAllCloudflareDnsRecords(recordMap, dnsMap, this.cloudflareService, (dns, record) -> {
-            record.getCloudflareViescloudRecord().add(dns);
+            if(Streams.stream(record.getCloudflareRecords()).noneMatch(e -> Json.isEquals(e, dns))) {
+                record.getCloudflareRecords().add(dns);
+            }
+
             return record;
         });
     }
@@ -62,7 +66,6 @@ public class DnsService {
         var list = cloudflareService.getAllCloudflareCnameRecord();
 
         list.forEach(dns -> {
-
             if (!dnsMap.containsKey(dns.getName())) {
                 return;
             }
@@ -89,7 +92,7 @@ public class DnsService {
             return record;
         });
     }
-    
+
     private void fetchAllNginxDnsRecords(Map<String, DnsRecord> recordMap, Map<String, String> dnsMap,
             NginxService service, BiFunction<NginxProxyHostResponse, DnsRecord, DnsRecord> function) {
         var proxyHosts = service.getAllProxyHost();
@@ -134,7 +137,8 @@ public class DnsService {
 
     private void putDnsRecord(String uri, NginxProxyHostResponse response) {
         this.putNginxRecord(uri, response, this.nginxService);
-        this.putCloudflareRecord(response, this.cloudflareService, this.dnsSetting.getDomain(), this.dnsSetting.isCloudflareProxied());
+        this.putCloudflareRecord(response, this.cloudflareService, this.dnsSetting.getDomain(),
+                this.dnsSetting.isCloudflareProxied());
     }
 
     private void putNginxRecord(String uri, NginxProxyHostResponse record, NginxService service) {
@@ -145,8 +149,9 @@ public class DnsService {
         }
     }
 
-    private void putCloudflareRecord(NginxProxyHostResponse record, CloudflareService cloudflareService, String dns, boolean proxied) {
-        if(ObjectUtils.isEmpty(record.getDomainNames())) {
+    private void putCloudflareRecord(NginxProxyHostResponse record, CloudflareService cloudflareService, String dns,
+            boolean proxied) {
+        if (ObjectUtils.isEmpty(record.getDomainNames())) {
             return;
         }
 
@@ -156,13 +161,15 @@ public class DnsService {
     }
 
     private void putCloudflareDns(String domainName) {
-        this.putCloudflareDns(this.cloudflareService, this.dnsSetting.getDomain(), this.dnsSetting.isCloudflareProxied(), domainName);
+        this.putCloudflareDns(this.cloudflareService, this.dnsSetting.getDomain(),
+                this.dnsSetting.isCloudflareProxied(), domainName);
     }
 
     private void putCloudflareDns(CloudflareService cloudflareService, String dns, boolean proxied, String domainName) {
         if (cloudflareService.getCloudflareCnameRecordByName(domainName) == null) {
             var now = DateTime.now();
-            var dateTime = String.format("%s-%s-%s at %s-%s-%s ETC", now.getMonth(), now.getDay(), now.getYear(), now.getHour(), now.getMinute(), now.getSecond());
+            var dateTime = String.format("%s-%s-%s at %s-%s-%s ETC", now.getMonth(), now.getDay(), now.getYear(),
+                    now.getHour(), now.getMinute(), now.getSecond());
             var request = CloudflareRequest.builder()
                     .name(domainName)
                     .content(dns)
@@ -171,7 +178,7 @@ public class DnsService {
                     .type("CNAME")
                     .comment(String.format("Auto-added by DNS Manager on: %s", dateTime))
                     .build();
-   
+
             cloudflareService.postCloudflareRecord(request);
         }
     }
@@ -180,18 +187,19 @@ public class DnsService {
         this.nginxService.deleteProxyHostByUri(uri);
     }
 
-    public void cleanUnusedCloudflareCnameDns() { 
+    public void cleanUnusedCloudflareCnameDns() {
         cleanUnusedCloudflareCnameDns(this.cloudflareService, this.nginxService);
     }
 
     private void cleanUnusedCloudflareCnameDns(CloudflareService cloudflareService, NginxService nginxService) {
         var cloudflareDnsResult = new ArrayList<>(cloudflareService.getAllCloudflareCnameRecord());
         var domainNames = new ArrayList<>(nginxService.getAllDomainNameList());
-        
+
         for (String domainName : domainNames) {
-            cloudflareDnsResult.removeIf(cloudflareDns -> cloudflareDns.getName().equalsIgnoreCase(domainName));
+            var name = domainName.trim();
+            cloudflareDnsResult.removeIf(cloudflareDns -> cloudflareDns.getName().equals(name));
         }
-        
+
         cloudflareDnsResult.forEach(e -> {
             cloudflareService.deleteCloudflareRecord(e.getId());
         });
@@ -206,9 +214,9 @@ public class DnsService {
         var domainNames = new ArrayList<>(nginxService.getAllDomainNameList());
 
         for (String domainName : domainNames) {
-            var cloudflareDns = Streams.stream(cloudflareDnsResult).filter(e -> e.getName().equalsIgnoreCase(domainName)).findFirst().orElse(null);
-            if (cloudflareDns == null) {
-                this.putCloudflareDns(domainName);
+            var name = domainName.trim();
+            if (Streams.stream(cloudflareDnsResult).noneMatch(e -> e.getName().equals(name))) {
+                this.putCloudflareDns(name);
             }
         }
     }
