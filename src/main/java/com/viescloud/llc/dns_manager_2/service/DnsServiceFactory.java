@@ -2,7 +2,9 @@ package com.viescloud.llc.dns_manager_2.service;
 
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -16,15 +18,16 @@ import com.viescloud.llc.dns_manager_2.model.DnsSetting;
 import com.viescloud.llc.dns_manager_2.model.cloudflare.CloudflareResult;
 import com.viescloud.llc.dns_manager_2.model.nginx.NginxProxyHostResponse;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
 public class DnsServiceFactory {
     
-    private final RestTemplate restTemplate;
-    private final CloudflareClient cloudflareClient;
-    private final RedisTemplateFactory redisTemplateFactory;
+    @Autowired
+    private RestTemplate restTemplate;
+    @Autowired
+    private CloudflareClient cloudflareClient;
+    @Autowired(required = false)
+    private RedisTemplateFactory redisTemplateFactory;
+
     private final HashMap<String, DnsService> dnsServiceMap = new HashMap<>();
     private static final Duration TTL = Duration.ofMinutes(10);
 
@@ -35,8 +38,11 @@ public class DnsServiceFactory {
             return this.dnsServiceMap.get(id);
         }
         else {
-            RedisTemplate<String, CloudflareResult> cloudFlareRedisTemplate = redisTemplateFactory.getDefault();
-            RedisTemplate<String, NginxProxyHostResponse> nginxProxyRedisTemplate = redisTemplateFactory.getDefault(); 
+            RedisTemplate<String, NginxProxyHostResponse> nginxProxyRedisTemplate = Optional.ofNullable(redisTemplateFactory).map(e-> e.<String, NginxProxyHostResponse>getDefault()).orElse(null);
+            RedisTemplate<String, CloudflareResult> cloudFlareRedisTemplate = Optional.ofNullable(redisTemplateFactory).map(e-> e.<String, CloudflareResult>getDefault()).orElse(null);
+
+            var dynamicNginxRedisExpirableMapCache = new DynamicRedisExpirableMapCache<String, NginxProxyHostResponse>(nginxProxyRedisTemplate).ttl(TTL);
+            var dynamicCloudflareRedisExpirableMapCache = new DynamicRedisExpirableMapCache<String, CloudflareResult>(cloudFlareRedisTemplate).ttl(TTL);
             
             NginxClient nginxClient = new NginxClient(restTemplate) {
                 @Override
@@ -45,7 +51,7 @@ public class DnsServiceFactory {
                 }
             };
 
-            NginxService nginxService = new NginxService(nginxClient, new DynamicRedisExpirableMapCache<String, NginxProxyHostResponse>(nginxProxyRedisTemplate).ttl(TTL)) {
+            NginxService nginxService = new NginxService(nginxClient, dynamicNginxRedisExpirableMapCache) {
                 @Override
                 protected String nginxEmail() {
                     return dnsSetting.getNginxEmail();
@@ -57,7 +63,7 @@ public class DnsServiceFactory {
                 }
             };
 
-            CloudflareService cloudflareService = new CloudflareService(this.cloudflareClient, new DynamicRedisExpirableMapCache<String, CloudflareResult>(cloudFlareRedisTemplate).ttl(TTL)) {
+            CloudflareService cloudflareService = new CloudflareService(this.cloudflareClient, dynamicCloudflareRedisExpirableMapCache) {
                 @Override
                 protected String cloudflareEmail() {
                     return dnsSetting.getCloudflareEmail();

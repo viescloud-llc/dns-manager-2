@@ -3,7 +3,6 @@ eureka.client.enabled: false
 spring.application.name: dns-manager-2
 
 cloudflare.uri: https://api.cloudflare.com
-logging.level.org.springframework.context.annotation: DEBUG
 spring.devtools.restart.enabled: false
 
 spring.profiles.active: local
